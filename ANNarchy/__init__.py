@@ -36,7 +36,7 @@ except Exception as e:
 from .generator import compile
 
 # Version
-__version__ = '4.6'
-__release__ = '4.6.1b'
+__version__ = '4.7'
+__release__ = '4.7.0'
 core.Global._print( 'ANNarchy ' + __version__ + ' (' + __release__ + \
                     ') on ' + sys.platform + ' (' + os.name + ').' )
