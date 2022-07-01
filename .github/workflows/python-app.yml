@@ -49,7 +49,7 @@ jobs:
       if: always()
       with:
         name: cov_st
-        path: tests/coverage_st.xml
+        path: **/coverage_st.xml
   openMP:
     runs-on: ubuntu-latest
     steps:
@@ -74,7 +74,7 @@ jobs:
       if: always()
       with:
         name: cov_omp
-        path: tests/coverage_omp.xml
+        path: **/coverage_omp.xml
   CUDA:
     runs-on: ubuntu-latest
     steps:
@@ -86,7 +86,7 @@ jobs:
     - name: cuda-toolkit
       uses: Jimver/cuda-toolkit@v0.2.7
       with:
-        cuda: '10.0.130'
+        cuda: '8.0.61'
     - run: nvcc -V
     - name: Install dependencies
       run: |
@@ -104,7 +104,7 @@ jobs:
       if: always()
       with:
         name: cov_cu
-        path: tests/coverage_cu.xml
+        path: **/coverage_cu.xml
   Codecov:
     runs-on: ubuntu-latest
     needs: [single_thread, openMP, CUDA]
