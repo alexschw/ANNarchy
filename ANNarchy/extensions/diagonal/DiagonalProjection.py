@@ -39,7 +39,7 @@ class DiagonalProjection(Projection):
         """
         # Create the description, but it will not be used for generation
         Projection.__init__(
-            self, 
+            self,
             pre,
             post,
             target,
@@ -49,9 +49,10 @@ class DiagonalProjection(Projection):
 
     def _copy(self, pre, post):
         "Returns a copy of the projection when creating networks.  Internal use only."
-        return DiagonalProjection(pre=pre, post=post, target=self.target, name=self.name, copied=True)
+        return DiagonalProjection(pre=pre, post=post, target=self.target,
+                                  name=self.name, copied=True)
 
-    def connect(self, weights, delays = Global.config['dt'], offset=0, slope=1):
+    def connect(self, weights, delays=Global.config['dt'], offset=0, slope=1):
         """
         Creates the diagonal connection pattern.
 
@@ -77,7 +78,6 @@ class DiagonalProjection(Projection):
             self._generate_omp_2d_gaussian()
         else:
             Global._error('The diagonal projection only works when both populations have 2 or 4 dimensions.')
-            
 
     def connect_gaussian(self, amp, sigma, min_val, max_distance=0.0):
         """
@@ -97,34 +97,33 @@ class DiagonalProjection(Projection):
 
         if not(self.pre.dimension == 4 and self.post.dimension == 4):
             Global._error('The diagonal projection only works when both populations have 4 dimensions.')
-            
 
-        self.offset_w = (self.pre.geometry[0]-(self.pre.geometry[0]%2))/2.0
-        self.offset_h = (self.pre.geometry[1]-(self.pre.geometry[1]%2))/2.0
-        self.sigma_w = self.sigma * (self.post.geometry[2] - self.post.geometry[2]%2 )
-        self.sigma_h = self.sigma * (self.post.geometry[3] - self.post.geometry[3]%2 )
+        self.offset_w = (self.pre.geometry[0]-(self.pre.geometry[0] % 2))/2.0
+        self.offset_h = (self.pre.geometry[1]-(self.pre.geometry[1] % 2))/2.0
+        self.sigma_w = self.sigma*(self.post.geometry[2] -
+                                   self.post.geometry[2] % 2)
+        self.sigma_h = self.sigma*(self.post.geometry[3] -
+                                   self.post.geometry[3] % 2)
 
-        # for post2 in xrange(self.post.geometry[2]):
-        #     for post3 in xrange(self.post.geometry[3]):
-        #         for pre0 in xrange(self.pre.geometry[0]):
-        #             for pre1 in xrange(self.pre.geometry[1]):
-        #                 for pre2 in xrange(self.pre.geometry[2]):
-        #                     for pre3 in xrange(self.pre.geometry[3]):                                    
+        # for post2 in range(self.post.geometry[2]):
+        #     for post3 in range(self.post.geometry[3]):
+        #         for pre0 in range(self.pre.geometry[0]):
+        #             for pre1 in range(self.pre.geometry[1]):
+        #                 for pre2 in range(self.pre.geometry[2]):
+        #                     for pre3 in range(self.pre.geometry[3]):
         #                         dist_w = (post2 - (pre0+pre2) + self.offset_w)
         #                         dist_h = (post3 - (pre1+pre3) + self.offset_h)
         #                         val = self.amp * np.exp(- (dist_w*dist_w/self.sigma_w/self.sigma_w + dist_h*dist_h/self.sigma_h/self.sigma_h) )
         #                         self.weights[(dist_w, dist_h)] = val
 
-        for dist_w in xrange(int(self.offset_w) - self.pre.geometry[0] - self.pre.geometry[2], int(self.offset_w) + self.post.geometry[2]):
-            for dist_h in xrange(int(self.offset_h) - self.pre.geometry[1] - self.pre.geometry[3], int(self.offset_h) + self.post.geometry[3]):
-                val = self.amp * np.exp(- (dist_w*dist_w/self.sigma_w/self.sigma_w + dist_h*dist_h/self.sigma_h/self.sigma_h) )
+        for dist_w in range(int(self.offset_w) - self.pre.geometry[0] - self.pre.geometry[2], int(self.offset_w) + self.post.geometry[2]):
+            for dist_h in range(int(self.offset_h) - self.pre.geometry[1] - self.pre.geometry[3], int(self.offset_h) + self.post.geometry[3]):
+                val = self.amp * np.exp(-(dist_w*dist_w/self.sigma_w/self.sigma_w + dist_h*dist_h/self.sigma_h/self.sigma_h))
                 self.weights[(dist_w, dist_h)] = val
-        
+
         # create a fake CSR object
         self._create()
         return self
-
-
 
     def _create(self):
         # create fake CSR object, just for compilation.
@@ -139,14 +138,14 @@ class DiagonalProjection(Projection):
         self.connector_description = "Diagonal Projection"
         self._store_connectivity(self._load_from_csr, (csr, ), 0)
 
-
     def _connect(self, module):
         """
         Builds up dendrites either from list or dictionary. Called by instantiate().
-        """        
+        """
         if not self._connection_method:
-            Global._error('The projection between ' + self.pre.name + ' and ' + self.post.name + ' is declared but not connected.')
-            
+            Global._error('The projection between ' + self.pre.name + ' and ' +
+                          self.post.name + ' is declared but not connected.')
+
         # Create the Cython instance
         proj = getattr(module, 'proj'+str(self.id)+'_wrapper')
         self.cyInstance = proj(self.weights)
@@ -154,12 +153,9 @@ class DiagonalProjection(Projection):
         # Define the list of postsynaptic neurons
         self.post_ranks = list(range(self.post.size))
 
-
-
     ################################
-    ### Code generation
+    # Code generation
     ################################
-
     def _generate_omp_1d(self):
         """
         Generate openMP template code.
@@ -213,7 +209,7 @@ class DiagonalProjection(Projection):
 """ % {'id_proj': self.id},
 
             # Wrapper access to variables
-            'wrapper_access_parameters_variables' : "",
+            'wrapper_access_parameters_variables': "",
 
             # Variables for the psp code
             'psp_prefix': """
@@ -227,7 +223,7 @@ class DiagonalProjection(Projection):
         dim_pre_1 = self.pre.geometry[1]
 
         # Pre-defined variables
-        wsum =  """
+        wsum = """
         int _idx_0, _idx_1, _idx_f, _start;
         std::vector<%(float_prec)s> _w = w;
         std::vector<%(float_prec)s> _pre_r = pop%(id_pre)s.r;
@@ -261,27 +257,28 @@ class DiagonalProjection(Projection):
                 pop%(id_post)s._sum_%(target)s[idx + %(dim_post_1)s*idx_1] += sum;
             }
         }
-""" 
+"""
 
-        if self.slope == 1 :
+        if self.slope == 1:
             inc0 = "-"
-            inc1 = ""             
-        elif self.slope > 1 :
+            inc1 = ""
+        elif self.slope > 1:
             inc0 = " - "
             inc1 = str(self.slope) + '*'
-        elif self.slope == 0 :
+        elif self.slope == 0:
             inc0 = "-"
             inc1 = '0*'
-        elif self.slope == -1 :
+        elif self.slope == -1:
             inc0 = "+"
-            inc1 = '-' 
+            inc1 = '-'
         else:
             inc0 = "+"
             inc1 = ' - ' + str(-self.slope) + '*'
 
-        self._specific_template['psp_code'] = wsum % {'id_proj': self.id, 
-            'target': self.target,  
-            'id_pre': self.pre.id, 'name_pre': self.pre.name, 'size_pre': self.pre.size, 
+        self._specific_template['psp_code'] = wsum % {
+            'id_proj': self.id,
+            'target': self.target,
+            'id_pre': self.pre.id, 'name_pre': self.pre.name, 'size_pre': self.pre.size,
             'id_post': self.post.id, 'name_post': self.post.name, 'size_post': self.post.size,
             'offset': self.offset,
             'dim_post_0': dim_post_0, 'dim_post_1': dim_post_1,
@@ -290,7 +287,7 @@ class DiagonalProjection(Projection):
             'center_filter': int(len(self.weights)/2),
             'inc0': inc0,
             'inc1': inc1
-          }
+        }
 
     def _generate_omp_2d_gaussian(self):
         # Specific template for generation
@@ -342,7 +339,7 @@ class DiagonalProjection(Projection):
             """ % {'id_proj': self.id},
 
             # Wrapper access to variables
-            'wrapper_access_parameters_variables' : "",
+            'wrapper_access_parameters_variables': "",
 
             # Variables for the psp code
             'psp_prefix': """
@@ -350,13 +347,13 @@ class DiagonalProjection(Projection):
         } % {'float_prec': Global.config['precision']}
 
         # Compute sum
-        wsum =  """
+        wsum = """
         std::vector<%(float_prec)s> result(%(postdim2)s*%(postdim3)s, 0.0);""" % {'float_prec': Global.config['precision']}
 
         if Global.config['num_threads'] > 1:
             wsum += """
         #pragma omp for"""
-    
+
         wsum += """
         for(int post2 = 0; post2 < %(postdim2)s; post2++){
             for(int post3 = 0; post3 < %(postdim3)s; post3++){
@@ -389,15 +386,15 @@ class DiagonalProjection(Projection):
         if self.max_distance != 0.0:
             wgd = "&& abs(dist_w) < %(mgd)s && abs(dist_h) < %(mgd)s" % {'mgd': self.max_distance}
         else:
-            wgd=""
+            wgd = ""
 
         self._specific_template['psp_code'] = wsum % {
-            'id_proj': self.id, 
-            'target': self.target,  
-            'id_pre': self.pre.id, 'name_pre': self.pre.name, 'size_pre': self.pre.size, 
+            'id_proj': self.id,
+            'target': self.target,
+            'id_pre': self.pre.id, 'name_pre': self.pre.name, 'size_pre': self.pre.size,
             'id_post': self.post.id, 'name_post': self.post.name, 'size_post': self.post.size,
-            'predim0': self.pre.geometry[0], 'predim1': self.pre.geometry[1], 'predim2': self.pre.geometry[2], 'predim3': self.pre.geometry[3], 
-            'postdim0': self.post.geometry[0], 'postdim1': self.post.geometry[1], 'postdim2': self.post.geometry[2], 'postdim3': self.post.geometry[3], 
+            'predim0': self.pre.geometry[0], 'predim1': self.pre.geometry[1], 'predim2': self.pre.geometry[2], 'predim3': self.pre.geometry[3],
+            'postdim0': self.post.geometry[0], 'postdim1': self.post.geometry[1], 'postdim2': self.post.geometry[2], 'postdim3': self.post.geometry[3],
             'offset_w': self.offset_w, 'offset_h': self.offset_h,
             'amp': self.amp, 'sigma_w': self.sigma_w, 'sigma_h': self.sigma_h, 'min_val': self.min_val, 'wgd': wgd
-          }
+        }
