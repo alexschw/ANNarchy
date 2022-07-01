@@ -46,6 +46,7 @@ jobs:
         coverage xml -o coverage_st.xml
         cd ..
     - uses: actions/upload-artifact@v3
+      if: always()
       with:
         name: cov_st
         path: tests/coverage_st.xml
@@ -70,6 +71,7 @@ jobs:
         coverage xml -o coverage_omp.xml
         cd ..
     - uses: actions/upload-artifact@v3
+      if: always()
       with:
         name: cov_omp
         path: tests/coverage_omp.xml
@@ -83,6 +85,8 @@ jobs:
         python-version: "3.6"
     - name: cuda-toolkit
       uses: Jimver/cuda-toolkit@v0.2.7
+      with:
+        cuda: '9.0.102'
     - run: nvcc -V
     - name: Install dependencies
       run: |
@@ -97,6 +101,7 @@ jobs:
         coverage xml -o coverage_cu.xml
         cd ..
     - uses: actions/upload-artifact@v3
+      if: always()
       with:
         name: cov_cu
         path: tests/coverage_cu.xml
