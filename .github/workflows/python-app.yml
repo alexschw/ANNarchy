@@ -13,6 +13,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
+    - name: Set up Python 3.6
+      uses: actions/setup-python@v3
+      with:
+        python-version: "3.6"
+    - name: Install flake
+      run: pip install flake8
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
@@ -30,13 +36,13 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install flake8 pytest coverage
+        pip install pytest coverage
         pip install -r requirements.txt
         python setup.py install
     - name: Test single threaded
       run: |
         cd tests/
-        coverage run -a python test_single_thread.py
+        coverage run -a test_single_thread.py
         cd ..
   openMP:
     runs-on: ubuntu-latest
@@ -49,13 +55,13 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install flake8 pytest coverage
+        pip install pytest coverage
         pip install -r requirements.txt
         python setup.py install
     - name: Test OpenMP Code
       run: |
         cd tests/
-        coverage run -a python test_openmp.py
+        coverage run -a test_openmp.py
         cd ..
   CUDA:
     runs-on: ubuntu-latest
@@ -68,13 +74,13 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install flake8 pytest coverage
+        pip install pytest coverage
         pip install -r requirements.txt
         python setup.py install
     - name: Test CUDA Code
       run: |
         cd tests/
-        coverage run -a python test_CUDA.py
+        coverage run -a test_CUDA.py
         cd ..
   Codecov:
     runs-on: ubuntu-latest
