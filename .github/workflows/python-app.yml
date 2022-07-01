@@ -86,7 +86,7 @@ jobs:
     - name: cuda-toolkit
       uses: Jimver/cuda-toolkit@v0.2.7
       with:
-        cuda: '9.0.102'
+        cuda: '10.0.130'
     - run: nvcc -V
     - name: Install dependencies
       run: |
