@@ -10,9 +10,7 @@ permissions:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v3
     - name: Set up Python 3.6
@@ -32,6 +30,7 @@ jobs:
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
   single_thread:
+    runs-on: ubuntu-latest
     name: Test single threaded
     needs: build
     steps:
@@ -41,6 +40,7 @@ jobs:
           coverage run -a python test_single_thread.py
           cd ..
   openMP:
+    runs-on: ubuntu-latest
     name: Test OpenMP Code
     needs: build
     steps:
@@ -50,6 +50,7 @@ jobs:
           coverage run -a python test_openmp.py
           cd ..
   CUDA:
+    runs-on: ubuntu-latest
     name: Test CUDA Code
     needs: build
     steps:
@@ -59,9 +60,11 @@ jobs:
           coverage run -a python test_CUDA.py
           cd ..
   Codecov:
+    runs-on: ubuntu-latest
     needs: [single_thread, openMP, CUDA]
     if: always()
-    name: Codecov
-    uses: codecov/codecov-action@v3
-    with:
-      flags: backend
+    steps:
+      - name: Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          flags: backend
